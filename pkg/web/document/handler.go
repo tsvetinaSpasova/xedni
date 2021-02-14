@@ -8,7 +8,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/google/uuid"
+	"github.com/go-ozzo/ozzo-validation/is"
+	ozzo "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/rs/zerolog"
 )
 
@@ -28,14 +29,13 @@ type Handler struct{}
 func (h Handler) GetDocument(logger *zerolog.Logger, ds *service.DocumentService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ID := chi.URLParam(r, "ID")
-		id, err := uuid.Parse(ID)
 
-		if err != nil {
+		if err := ozzo.Validate(ID, is.UUIDv4); err != nil {
 			render.Render(w, r, weberror.NewErrorResponse(ErrGetDocumentParam, http.StatusBadRequest, err, logger))
 			return
 		}
 
-		document, err := ds.GetByID(id)
+		document, err := ds.GetByID(ID)
 		if err != nil {
 			render.Render(w, r, weberror.NewErrorResponse(ErrGetDocumentLoad, http.StatusBadRequest, err, logger))
 			return

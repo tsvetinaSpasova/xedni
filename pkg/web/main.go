@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	"xedni/pkg/domain/tokenization"
 
 	"xedni/pkg/configuration"
 	"xedni/pkg/domain/document"
@@ -34,11 +35,21 @@ func NewDocumentRepository(ctx context.Context, cfg *configuration.AppConfigurat
 	}
 }
 
+func NewTermRepository(ctx context.Context, cfg *configuration.AppConfiguration, logger *zerolog.Logger) (tokenization.TermRepository, error) {
+	switch cfg.Repository.Adapter {
+	case "file":
+		return file.NewTermRepository(ctx, cfg.Repository.Options, logger)
+	default:
+		return nil, fmt.Errorf("unknown storage adapter: [%s]", cfg.Repository.Adapter)
+	}
+}
+
 // NewDocumentService fires up a Document service
-func NewDocumentService(r document.DocumentRepository, l *zerolog.Logger) (*service.DocumentService, error) {
+func NewDocumentService(r document.DocumentRepository, t tokenization.TermRepository, l *zerolog.Logger) (*service.DocumentService, error) {
 	return &service.DocumentService{
-		Repository: r,
-		Logger:     l,
+		Repository:     r,
+		TermRepository: t,
+		Logger:         l,
 	}, nil
 }
 
@@ -49,7 +60,12 @@ func NewRouter(ctx context.Context, cfg *configuration.AppConfiguration, logger 
 		logger.Fatal().Err(err).Msg("Could not instantiate the Document repository")
 	}
 
-	documentService, err := NewDocumentService(documentRepository, logger)
+	termRepository, err := NewTermRepository(ctx, cfg, logger)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Could not instantiate the term repository")
+	}
+
+	documentService, err := NewDocumentService(documentRepository, termRepository, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Could not instantiate the Document service")
 	}

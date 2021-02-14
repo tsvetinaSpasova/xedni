@@ -7,7 +7,6 @@ import (
 
 	"xedni/pkg/domain/document"
 
-	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 )
 
@@ -22,7 +21,7 @@ func (r *DocumentRepository) Store(d document.Document) error {
 }
 
 // LoadByID mock for in-memory storage.
-func (r *DocumentRepository) LoadByID(ID uuid.UUID) (*document.Document, error) {
+func (r *DocumentRepository) LoadByID(ID string) (*document.Document, error) {
 	v, ok := r.m.Load(ID)
 	if !ok {
 		// Match upper/db4 db.ErrNoMoreRows

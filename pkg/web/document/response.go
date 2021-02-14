@@ -7,13 +7,12 @@ import (
 	"xedni/pkg/service"
 
 	"github.com/go-chi/render"
-	"github.com/google/uuid"
 )
 
 // FetchResponse is the shape of data for a loaded document record
 type FetchResponse struct {
-	ID   uuid.UUID `json:"id"`
-	Text string    `json:"text"`
+	ID   string `json:"id"`
+	Text string `json:"text"`
 }
 
 // Render satisfies the chi interface
@@ -24,7 +23,7 @@ func (fr *FetchResponse) Render(w http.ResponseWriter, r *http.Request) error {
 
 // CreateResponse contains the ID post document creation
 type CreateResponse struct {
-	ID uuid.UUID `json:"id"`
+	ID string `json:"id"`
 }
 
 // Render setups up the correct http status code.
@@ -42,6 +41,6 @@ func NewFetchResponse(d document.Document, _ *service.DocumentService) *FetchRes
 }
 
 // NewCreateResponse instantiates a new response when document is created
-func NewCreateResponse(ID uuid.UUID, _ *service.DocumentService) *CreateResponse {
+func NewCreateResponse(ID string, _ *service.DocumentService) *CreateResponse {
 	return &CreateResponse{ID: ID}
 }

@@ -7,7 +7,6 @@ import (
 
 	"xedni/pkg/domain/document"
 
-	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 )
 
@@ -23,12 +22,12 @@ func (r *DocumentRepository) Store(d document.Document) error {
 		return err
 	}
 
-	return ioutil.WriteFile("/var/tmp/xedni/documents/"+d.ID.String(), bs, 0644)
+	return ioutil.WriteFile("/var/tmp/xedni/documents/"+d.ID, bs, 0644)
 }
 
 // LoadByID mock for in-memory storage.
-func (r *DocumentRepository) LoadByID(ID uuid.UUID) (*document.Document, error) {
-	bs, err := ioutil.ReadFile("/var/tmp/xedni/documents/" + ID.String())
+func (r *DocumentRepository) LoadByID(ID string) (*document.Document, error) {
+	bs, err := ioutil.ReadFile("/var/tmp/xedni/documents/" + ID)
 	if err != nil {
 		return nil, err
 	}
