@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"xedni/pkg/domain/document"
 	"xedni/pkg/domain/tokenization"
 
@@ -33,16 +34,26 @@ func (ds DocumentService) Store(text string) (*string, error) {
 		return nil, err
 	}
 
-	var s []string = []string{doc.ID}
-
-	t, err := tokenization.New("word", s)
+	tokens, err := tokenization.Tokenize(*doc)
 	if err != nil {
 		return nil, err
 	}
+	log.Println(tokens)
 
-	err = ds.TermRepository.Store(*t)
-	if err != nil {
-		return nil, err
+	for _, token := range tokens {
+		term, err := ds.TermRepository.LoadByToken(token)
+		if err != nil {
+			return nil, err
+		}
+
+		if err = term.Insert(doc.ID); err != nil {
+			return nil, err
+		}
+
+		err = ds.TermRepository.Store(*term)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &doc.ID, nil

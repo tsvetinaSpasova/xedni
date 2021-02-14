@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"xedni/pkg/domain/tokenization"
 
 	"github.com/rs/zerolog"
@@ -24,6 +25,11 @@ func (r *TermRepository) Store(t tokenization.Term) error {
 }
 
 func (r *TermRepository) LoadByToken(token string) (*tokenization.Term, error) {
+
+	if _, err := os.Stat("/var/tmp/xedni/terms/" + token); err != nil {
+		return tokenization.New(token, nil)
+	}
+
 	bs, err := ioutil.ReadFile("/var/tmp/xedni/terms/" + token)
 	if err != nil {
 		return nil, err
