@@ -1,15 +1,14 @@
 package document
 
 import (
-	"errors"
 	"net/http"
 
-	"xedni/pkg/domain/document"
 	"xedni/pkg/service"
 	weberror "xedni/pkg/web/error"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 )
 
@@ -29,12 +28,14 @@ type Handler struct{}
 func (h Handler) GetDocument(logger *zerolog.Logger, ds *service.DocumentService) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ID := chi.URLParam(r, "ID")
-		if ID == "" {
-			render.Render(w, r, weberror.NewErrorResponse(ErrGetDocumentParam, http.StatusBadRequest, errors.New("passed an empty ID"), logger))
+		id, err := uuid.Parse(ID)
+
+		if err != nil {
+			render.Render(w, r, weberror.NewErrorResponse(ErrGetDocumentParam, http.StatusBadRequest, err, logger))
 			return
 		}
 
-		document, err := ds.GetByID(ID)
+		document, err := ds.GetByID(id)
 		if err != nil {
 			render.Render(w, r, weberror.NewErrorResponse(ErrGetDocumentLoad, http.StatusBadRequest, err, logger))
 			return
@@ -53,13 +54,13 @@ func (h Handler) CreateDocument(logger *zerolog.Logger, ds *service.DocumentServ
 			return
 		}
 
-		err := ds.Store(request.Text)
+		id, err := ds.Store(request.Text)
 		if err != nil {
 			render.Render(w, r, weberror.NewErrorResponse(ErrCreateDocumentStore, http.StatusBadRequest, err, logger))
 			return
 		}
 
-		render.Render(w, r, NewCreateResponse(document.Document{ID: "demo", Text: request.Text}, ds))
+		render.Render(w, r, NewCreateResponse(*id, ds))
 	}
 }
 

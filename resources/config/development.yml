@@ -1,2 +1,2 @@
 repository:
-  adapter: memory
+  adapter: file

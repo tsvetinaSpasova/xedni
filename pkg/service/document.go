@@ -3,6 +3,7 @@ package service
 import (
 	"xedni/pkg/domain/document"
 
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 )
 
@@ -13,13 +14,23 @@ type DocumentService struct {
 }
 
 // GetByID - Proxy to repository
-func (ds DocumentService) GetByID(ID string) (*document.Document, error) {
+func (ds DocumentService) GetByID(ID uuid.UUID) (*document.Document, error) {
 	// Stuff happens
 	return ds.Repository.LoadByID(ID)
 }
 
 // Store converts raw text to a Documents record and saves to the respective repository.
-func (ds DocumentService) Store(text string) error {
+func (ds DocumentService) Store(text string) (*uuid.UUID, error) {
 	// Stuff happens
-	return ds.Repository.Store(document.Document{ID: "demo", Text: text})
+
+	doc, err := document.New(text)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = ds.Repository.Store(*doc); err != nil {
+		return nil, err
+	}
+
+	return &doc.ID, nil
 }

@@ -70,7 +70,6 @@ func (s *DocumentSuite) TestDocumentHandlerCreate() {
 	var happyResponse document.CreateResponse
 	err = json.Unmarshal(rr.Body.Bytes(), &happyResponse)
 	assert.Nil(err)
-	assert.Equal("demo", happyResponse.ID, "ID of created record did not match expectation.")
 
 	// Creation with empty label does not pass validation
 	createPayloadEmpty, err := json.Marshal(document.CreateRequest{

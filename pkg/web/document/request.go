@@ -8,7 +8,7 @@ import (
 
 // CreateRequest is the payload shape for demo creation
 type CreateRequest struct {
-	Text string
+	Text string `json:"text"`
 }
 
 // Validate is a proxy method to confirm payload satisfies expectations

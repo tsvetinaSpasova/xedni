@@ -11,6 +11,7 @@ import (
 
 	"xedni/pkg/configuration"
 	"xedni/pkg/domain/document"
+	"xedni/pkg/infrastructure/storage/file"
 	"xedni/pkg/infrastructure/storage/memory"
 	"xedni/pkg/service"
 	webdocument "xedni/pkg/web/document"
@@ -26,6 +27,8 @@ func NewDocumentRepository(ctx context.Context, cfg *configuration.AppConfigurat
 	switch cfg.Repository.Adapter {
 	case "memory":
 		return memory.NewDocumentRepository(ctx, cfg.Repository.Options, logger)
+	case "file":
+		return file.NewDocumentRepository(ctx, cfg.Repository.Options, logger)
 	default:
 		return nil, fmt.Errorf("unknown storage adapter: [%s]", cfg.Repository.Adapter)
 	}
