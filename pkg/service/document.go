@@ -1,7 +1,7 @@
 package service
 
 import (
-	"log"
+	"strings"
 	"xedni/pkg/domain/document"
 	"xedni/pkg/domain/tokenization"
 
@@ -34,11 +34,10 @@ func (ds DocumentService) Store(text string) (*string, error) {
 		return nil, err
 	}
 
-	tokens, err := tokenization.Tokenize(*doc)
+	tokens, err := tokenization.Tokenize(doc.Text)
 	if err != nil {
 		return nil, err
 	}
-	log.Println(tokens)
 
 	for _, token := range tokens {
 		term, err := ds.TermRepository.LoadByToken(token)
@@ -57,4 +56,56 @@ func (ds DocumentService) Store(text string) (*string, error) {
 	}
 
 	return &doc.ID, nil
+}
+
+func Merge(ids1 []string, ids2 []string) []string {
+	answer := []string{}
+
+	if ids2 == nil {
+		return ids1
+	}
+
+	for i, j := 0, 0; i < len(ids1) && j < len(ids2); {
+		switch strings.Compare(ids1[i], ids2[j]) {
+		case 0:
+			answer = append(answer, ids1[i])
+			i++
+			j++
+		case -1:
+			i++
+		default:
+			j++
+		}
+	}
+	return answer
+}
+
+func (ds DocumentService) Search(words []string) ([]document.Document, error) {
+	terms := []tokenization.Term{}
+
+	for _, w := range words {
+		t, err := ds.TermRepository.LoadByToken(w)
+		if err != nil {
+			return nil, err
+		}
+		terms = append(terms, *t)
+	}
+
+	var ids []string
+
+	for _, t := range terms {
+		ids = Merge(t.DocIDs, ids)
+	}
+
+	docs := []document.Document{}
+
+	for _, id := range ids {
+		d, err := ds.Repository.LoadByID(id)
+		if err != nil {
+			return nil, err
+		}
+		docs = append(docs, *d)
+	}
+
+	return docs, nil
 }

@@ -3,7 +3,6 @@ package tokenization
 import (
 	"log"
 	"strings"
-	"xedni/pkg/domain/document"
 
 	"github.com/jdkato/prose/v2"
 )
@@ -67,9 +66,9 @@ func New(token string, di []string) (*Term, error) {
 	}, nil
 }
 
-func Tokenize(d document.Document) ([]string, error) {
+func Tokenize(text string) ([]string, error) {
 	// Create a new document with the default configuration:
-	doc, err := prose.NewDocument(d.Text)
+	doc, err := prose.NewDocument(text)
 	if err != nil {
 		log.Fatal(err)
 	}

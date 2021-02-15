@@ -16,10 +16,12 @@ import (
 const (
 	// You decide if you want to wrap errors or
 	// will use values.
-	ErrGetDocumentParam    = "get_document_param"
-	ErrGetDocumentLoad     = "get_document_load"
-	ErrCreateDocumentParam = "create_document_param"
-	ErrCreateDocumentStore = "create_document_store"
+	ErrGetDocumentParam      = "get_document_param"
+	ErrGetDocumentLoad       = "get_document_load"
+	ErrCreateDocumentParam   = "create_document_param"
+	ErrCreateDocumentStore   = "create_document_store"
+	ErrSearchDocumentsParam  = "search_document_param"
+	ErrSearchDocumentsSearch = "search_document_search"
 )
 
 // Handler is just a route collection
@@ -64,12 +66,33 @@ func (h Handler) CreateDocument(logger *zerolog.Logger, ds *service.DocumentServ
 	}
 }
 
+// // Searchallows HTTP creation.
+func (h Handler) Search(logger *zerolog.Logger, ds *service.DocumentService) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		request := SearchRequest{}
+		if err := render.Bind(r, &request); err != nil {
+			render.Render(w, r, weberror.NewErrorResponse(ErrSearchDocumentsParam, http.StatusBadRequest, err, logger))
+			return
+		}
+
+		docs, err := ds.Search(request.Words)
+		if err != nil {
+			render.Render(w, r, weberror.NewErrorResponse(ErrSearchDocumentsSearch, http.StatusBadRequest, err, logger))
+			return
+		}
+
+		render.Render(w, r, NewSearchResponse(docs, ds))
+	}
+}
+
 // Routes for document create/read
 func (h Handler) Routes(logger *zerolog.Logger, ds *service.DocumentService) chi.Router {
 	r := chi.NewRouter()
 
 	r.Post("/document", h.CreateDocument(logger, ds))
 	r.Get("/document/{ID}", h.GetDocument(logger, ds))
+
+	r.Post("/search", h.Search(logger, ds))
 
 	return r
 }

@@ -32,6 +32,16 @@ func (cr *CreateResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+type SearchResponse struct {
+	Docs []document.Document `json:"docs"`
+}
+
+// Render satisfies the chi interface
+func (sr *SearchResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	render.Status(r, http.StatusOK)
+	return nil
+}
+
 // NewFetchResponse instantiate a new response post load
 func NewFetchResponse(d document.Document, _ *service.DocumentService) *FetchResponse {
 	return &FetchResponse{
@@ -43,4 +53,10 @@ func NewFetchResponse(d document.Document, _ *service.DocumentService) *FetchRes
 // NewCreateResponse instantiates a new response when document is created
 func NewCreateResponse(ID string, _ *service.DocumentService) *CreateResponse {
 	return &CreateResponse{ID: ID}
+}
+
+func NewSearchResponse(docs []document.Document, _ *service.DocumentService) *SearchResponse {
+	return &SearchResponse{
+		Docs: docs,
+	}
 }

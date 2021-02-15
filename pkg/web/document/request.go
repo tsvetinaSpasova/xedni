@@ -23,3 +23,21 @@ func (cr *CreateRequest) Validate() error {
 func (cr *CreateRequest) Bind(r *http.Request) error {
 	return cr.Validate()
 }
+
+// SearchRequest is the payload shape for demo creation
+type SearchRequest struct {
+	Words []string `json:"words"`
+}
+
+// Validate is a proxy method to confirm payload satisfies expectations
+func (sr *SearchRequest) Validate() error {
+	return ozzo.ValidateStruct(
+		sr,
+		ozzo.Field(&sr.Words, ozzo.Required, ozzo.Length(1, 0)),
+	)
+}
+
+// Binder interface for chi
+func (sr *SearchRequest) Bind(r *http.Request) error {
+	return sr.Validate()
+}
