@@ -6,7 +6,7 @@ import (
 	ozzo "github.com/go-ozzo/ozzo-validation/v4"
 )
 
-// CreateRequest is the payload shape for demo creation
+// CreateRequest is the payload shape for document creation
 type CreateRequest struct {
 	Text string `json:"text"`
 }
@@ -24,7 +24,7 @@ func (cr *CreateRequest) Bind(r *http.Request) error {
 	return cr.Validate()
 }
 
-// SearchRequest is the payload shape for demo creation
+// SearchRequest is the payload shape for search
 type SearchRequest struct {
 	Words []string `json:"words"`
 }

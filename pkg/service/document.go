@@ -2,6 +2,7 @@ package service
 
 import (
 	"strings"
+	"sync"
 	"xedni/pkg/domain/document"
 	"xedni/pkg/domain/tokenization"
 
@@ -9,20 +10,21 @@ import (
 )
 
 // DocumentService contains the business logic for documents
-type DocumentService struct {
+type IndexService struct {
 	TermRepository tokenization.TermRepository
 	Repository     document.DocumentRepository
 	Logger         *zerolog.Logger
+	m              sync.Mutex
 }
 
 // GetByID - Proxy to repository
-func (ds DocumentService) GetByID(ID string) (*document.Document, error) {
+func (ins *IndexService) GetByID(ID string) (*document.Document, error) {
 	// Stuff happens
-	return ds.Repository.LoadByID(ID)
+	return ins.Repository.LoadByID(ID)
 }
 
 // Store converts raw text to a Documents record and saves to the respective repository.
-func (ds DocumentService) Store(text string) (*string, error) {
+func (ins *IndexService) Index(text string) (*string, error) {
 	// Stuff happens
 
 	doc, err := document.New(text)
@@ -30,7 +32,7 @@ func (ds DocumentService) Store(text string) (*string, error) {
 		return nil, err
 	}
 
-	if err = ds.Repository.Store(*doc); err != nil {
+	if err = ins.Repository.Store(*doc); err != nil {
 		return nil, err
 	}
 
@@ -39,8 +41,9 @@ func (ds DocumentService) Store(text string) (*string, error) {
 		return nil, err
 	}
 
+	ins.m.Lock()
 	for _, token := range tokens {
-		term, err := ds.TermRepository.LoadByToken(token)
+		term, err := ins.TermRepository.LoadByToken(token)
 		if err != nil {
 			return nil, err
 		}
@@ -49,11 +52,12 @@ func (ds DocumentService) Store(text string) (*string, error) {
 			return nil, err
 		}
 
-		err = ds.TermRepository.Store(*term)
+		err = ins.TermRepository.Store(*term)
 		if err != nil {
 			return nil, err
 		}
 	}
+	ins.m.Unlock()
 
 	return &doc.ID, nil
 }
@@ -80,11 +84,11 @@ func Merge(ids1 []string, ids2 []string) []string {
 	return answer
 }
 
-func (ds DocumentService) Search(words []string) ([]document.Document, error) {
+func (ins *IndexService) Search(words []string) ([]document.Document, error) {
 	terms := []tokenization.Term{}
 
 	for _, w := range words {
-		t, err := ds.TermRepository.LoadByToken(w)
+		t, err := ins.TermRepository.LoadByToken(w)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +104,7 @@ func (ds DocumentService) Search(words []string) ([]document.Document, error) {
 	docs := []document.Document{}
 
 	for _, id := range ids {
-		d, err := ds.Repository.LoadByID(id)
+		d, err := ins.Repository.LoadByID(id)
 		if err != nil {
 			return nil, err
 		}

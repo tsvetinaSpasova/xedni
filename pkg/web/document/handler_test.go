@@ -61,7 +61,7 @@ func (s *DocumentSuite) TestDocumentHandlerCreate() {
 	})
 	assert.Nil(err)
 
-	createRequest := httptest.NewRequest("POST", "/api/document", bytes.NewReader(createPayload))
+	createRequest := httptest.NewRequest("POST", "/api/index", bytes.NewReader(createPayload))
 	rr := httptest.NewRecorder()
 
 	s.r.ServeHTTP(rr, createRequest)
@@ -78,7 +78,7 @@ func (s *DocumentSuite) TestDocumentHandlerCreate() {
 	assert.Nil(err)
 
 	rr = httptest.NewRecorder()
-	emptyCreateRequest := httptest.NewRequest("POST", "/api/document", bytes.NewReader(createPayloadEmpty))
+	emptyCreateRequest := httptest.NewRequest("POST", "/api/index", bytes.NewReader(createPayloadEmpty))
 	s.r.ServeHTTP(rr, emptyCreateRequest)
 	assert.Equal(http.StatusBadRequest, rr.Code)
 

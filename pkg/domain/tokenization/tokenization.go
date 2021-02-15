@@ -1,7 +1,6 @@
 package tokenization
 
 import (
-	"log"
 	"strings"
 
 	"github.com/jdkato/prose/v2"
@@ -70,7 +69,7 @@ func Tokenize(text string) ([]string, error) {
 	// Create a new document with the default configuration:
 	doc, err := prose.NewDocument(text)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	s := []string{}

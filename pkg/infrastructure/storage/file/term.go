@@ -10,6 +10,8 @@ import (
 	"github.com/rs/zerolog"
 )
 
+const termsPath = "/var/tmp/xedni/terms/"
+
 type TermRepository struct {
 	Logger *zerolog.Logger
 }
@@ -21,16 +23,16 @@ func (r *TermRepository) Store(t tokenization.Term) error {
 		return err
 	}
 
-	return ioutil.WriteFile("/var/tmp/xedni/terms/"+t.Token, bs, 0644)
+	return ioutil.WriteFile(termsPath+t.Token, bs, 0644)
 }
 
 func (r *TermRepository) LoadByToken(token string) (*tokenization.Term, error) {
 
-	if _, err := os.Stat("/var/tmp/xedni/terms/" + token); err != nil {
+	if _, err := os.Stat(termsPath + token); err != nil {
 		return tokenization.New(token, nil)
 	}
 
-	bs, err := ioutil.ReadFile("/var/tmp/xedni/terms/" + token)
+	bs, err := ioutil.ReadFile(termsPath + token)
 	if err != nil {
 		return nil, err
 	}

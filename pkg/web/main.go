@@ -37,6 +37,8 @@ func NewDocumentRepository(ctx context.Context, cfg *configuration.AppConfigurat
 
 func NewTermRepository(ctx context.Context, cfg *configuration.AppConfiguration, logger *zerolog.Logger) (tokenization.TermRepository, error) {
 	switch cfg.Repository.Adapter {
+	case "memory":
+		return memory.NewTermRepository(ctx, cfg.Repository.Options, logger)
 	case "file":
 		return file.NewTermRepository(ctx, cfg.Repository.Options, logger)
 	default:
@@ -45,8 +47,8 @@ func NewTermRepository(ctx context.Context, cfg *configuration.AppConfiguration,
 }
 
 // NewDocumentService fires up a Document service
-func NewDocumentService(r document.DocumentRepository, t tokenization.TermRepository, l *zerolog.Logger) (*service.DocumentService, error) {
-	return &service.DocumentService{
+func NewIndexService(r document.DocumentRepository, t tokenization.TermRepository, l *zerolog.Logger) (*service.IndexService, error) {
+	return &service.IndexService{
 		Repository:     r,
 		TermRepository: t,
 		Logger:         l,
@@ -65,7 +67,7 @@ func NewRouter(ctx context.Context, cfg *configuration.AppConfiguration, logger 
 		logger.Fatal().Err(err).Msg("Could not instantiate the term repository")
 	}
 
-	documentService, err := NewDocumentService(documentRepository, termRepository, logger)
+	indexService, err := NewIndexService(documentRepository, termRepository, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Could not instantiate the Document service")
 	}
@@ -75,7 +77,7 @@ func NewRouter(ctx context.Context, cfg *configuration.AppConfiguration, logger 
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Use(chimiddleware.Heartbeat("/status"))
 
-	r.Mount("/api", webdocument.Handler{}.Routes(logger, documentService))
+	r.Mount("/api", webdocument.Handler{}.Routes(logger, indexService))
 
 	return r
 }

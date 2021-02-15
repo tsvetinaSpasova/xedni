@@ -43,7 +43,7 @@ func (sr *SearchResponse) Render(w http.ResponseWriter, r *http.Request) error {
 }
 
 // NewFetchResponse instantiate a new response post load
-func NewFetchResponse(d document.Document, _ *service.DocumentService) *FetchResponse {
+func NewFetchResponse(d document.Document, _ *service.IndexService) *FetchResponse {
 	return &FetchResponse{
 		ID:   d.ID,
 		Text: d.Text,
@@ -51,11 +51,11 @@ func NewFetchResponse(d document.Document, _ *service.DocumentService) *FetchRes
 }
 
 // NewCreateResponse instantiates a new response when document is created
-func NewCreateResponse(ID string, _ *service.DocumentService) *CreateResponse {
+func NewCreateResponse(ID string, _ *service.IndexService) *CreateResponse {
 	return &CreateResponse{ID: ID}
 }
 
-func NewSearchResponse(docs []document.Document, _ *service.DocumentService) *SearchResponse {
+func NewSearchResponse(docs []document.Document, _ *service.IndexService) *SearchResponse {
 	return &SearchResponse{
 		Docs: docs,
 	}
