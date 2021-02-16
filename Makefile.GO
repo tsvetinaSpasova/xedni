@@ -13,5 +13,9 @@ go-test:
 	@echo "Running all ${GOSERVICE} tests.."
 	SERVICE_ENV=test GOPROXY=${GOPROXY} go test -cover -v -race ./... -args -config-path=${CURDIR}/resources/config
 
+go-bench:
+	@echo "Running all ${GOSERVICE} benchmarks.."
+	SERVICE_ENV=test GOPROXY=${GOPROXY} go test -bench=. ./... -args -config-path=${CURDIR}/resources/config
+
 go-run:
 	SERVICE_ENV=development GOPROXY=${GOPROXY} SERVICE_PORT=8888 SERVICE_LOG=debug go run main.go server

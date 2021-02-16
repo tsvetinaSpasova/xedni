@@ -52,7 +52,7 @@ func (s *IndexSuite) SetupTest() {
 	s.r = web.NewRouter(context.Background(), appConfiguration, logger)
 }
 
-func (s *IndexSuite) TestDocumentHandlerCreate() {
+func (s *IndexSuite) TestIndexHandlerCreate() {
 	assert := assert.New(s.T())
 
 	// Any label gets the Document ID
@@ -86,6 +86,43 @@ func (s *IndexSuite) TestDocumentHandlerCreate() {
 	err = json.Unmarshal(rr.Body.Bytes(), &errorResponse)
 	assert.Nil(err)
 	assert.Equal(document.ErrCreateDocumentParam, errorResponse.Message, "Error response for create validation did not match.")
+
+}
+
+func (s *IndexSuite) TestIndexHandlerSearch() {
+	assert := assert.New(s.T())
+
+	// Any label gets the Document ID
+	search, err := json.Marshal(document.SearchRequest{
+		Words: []string{"I", "better", "be", "there"},
+	})
+	assert.Nil(err)
+
+	searchRequest := httptest.NewRequest("POST", "/api/search", bytes.NewReader(search))
+	rr := httptest.NewRecorder()
+
+	s.r.ServeHTTP(rr, searchRequest)
+	assert.Equal(http.StatusOK, rr.Code)
+
+	var happyResponse document.SearchResponse
+	err = json.Unmarshal(rr.Body.Bytes(), &happyResponse)
+	assert.Nil(err)
+
+	// Creation with empty label does not pass validation
+	search, err = json.Marshal(document.SearchRequest{
+		Words: []string{},
+	})
+	assert.Nil(err)
+
+	rr = httptest.NewRecorder()
+	emptySearchRequest := httptest.NewRequest("POST", "/api/search", bytes.NewReader(search))
+	s.r.ServeHTTP(rr, emptySearchRequest)
+	assert.Equal(http.StatusBadRequest, rr.Code)
+
+	var errorResponse weberror.ErrorResponse
+	err = json.Unmarshal(rr.Body.Bytes(), &errorResponse)
+	assert.Nil(err)
+	assert.Equal(document.ErrSearchDocumentsParam, errorResponse.Message, "Error response for create validation did not match.")
 
 }
 
