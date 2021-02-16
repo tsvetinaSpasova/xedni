@@ -16,6 +16,8 @@ type TermRepository struct {
 	Logger *zerolog.Logger
 }
 
+// Store stores term as a file in a directory with path: termsPath
+// The file is named by term's Token and contains term's DocIDs in a sorted way
 func (r *TermRepository) Store(t tokenization.Term) error {
 	bs, err := json.Marshal(t)
 
@@ -26,6 +28,7 @@ func (r *TermRepository) Store(t tokenization.Term) error {
 	return ioutil.WriteFile(termsPath+t.Token, bs, 0644)
 }
 
+// LoadByToken loads a term by finding the file that is named like token
 func (r *TermRepository) LoadByToken(token string) (*tokenization.Term, error) {
 
 	if _, err := os.Stat(termsPath + token); err != nil {
@@ -45,6 +48,7 @@ func (r *TermRepository) LoadByToken(token string) (*tokenization.Term, error) {
 	return &d, nil
 }
 
+// NewTermRepository instantiates an example file repository
 func NewTermRepository(_ context.Context, options map[string]interface{}, logger *zerolog.Logger) (*TermRepository, error) {
 	return &TermRepository{
 		Logger: logger,

@@ -16,7 +16,8 @@ type DocumentRepository struct {
 	Logger *zerolog.Logger
 }
 
-// Store mock for in-memory storage
+// Store stores document as a file in a directory with path: docsPath
+// The file is named by document's ID and contains document's Text
 func (r *DocumentRepository) Store(d document.Document) error {
 	bs, err := json.Marshal(d)
 
@@ -27,7 +28,7 @@ func (r *DocumentRepository) Store(d document.Document) error {
 	return ioutil.WriteFile(docsPath+d.ID, bs, 0644)
 }
 
-// LoadByID mock for in-memory storage.
+// LoadByID loads a document by finding the file that is named like ID
 func (r *DocumentRepository) LoadByID(ID string) (*document.Document, error) {
 	bs, err := ioutil.ReadFile(docsPath + ID)
 	if err != nil {
@@ -42,7 +43,7 @@ func (r *DocumentRepository) LoadByID(ID string) (*document.Document, error) {
 	return &d, nil
 }
 
-// NewDocumentRepository instantiates an example memory repository
+// NewDocumentRepository instantiates an example file repository
 func NewDocumentRepository(_ context.Context, options map[string]interface{}, logger *zerolog.Logger) (*DocumentRepository, error) {
 	return &DocumentRepository{
 		Logger: logger,
