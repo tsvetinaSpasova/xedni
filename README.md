@@ -24,12 +24,30 @@ make go-run
 
 ### To create index from a document 
 ```bash
-./examples/index.sh
+cd examples
+```
+
+```bash
+./index.sh
 ```
 
 ### To search index for terms
 ```bash
-./examples/search.sh
+cd examples
+```
+
+```bash
+./search.sh
+```
+
+### Run tests
+```bash
+make go-test
+```
+
+### Run benchmarks
+```bash
+make go-bench
 ```
 
 ## Advantage of Inverted Index
