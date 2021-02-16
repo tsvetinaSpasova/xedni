@@ -35,6 +35,7 @@ func NewDocumentRepository(ctx context.Context, cfg *configuration.AppConfigurat
 	}
 }
 
+// NewTermRepository instantiates a storage repository according to the configuration.
 func NewTermRepository(ctx context.Context, cfg *configuration.AppConfiguration, logger *zerolog.Logger) (tokenization.TermRepository, error) {
 	switch cfg.Repository.Adapter {
 	case "memory":
@@ -46,12 +47,12 @@ func NewTermRepository(ctx context.Context, cfg *configuration.AppConfiguration,
 	}
 }
 
-// NewDocumentService fires up a Document service
-func NewIndexService(r document.DocumentRepository, t tokenization.TermRepository, l *zerolog.Logger) (*service.IndexService, error) {
+// NewIndexService fires up a Index service
+func NewIndexService(d document.DocumentRepository, t tokenization.TermRepository, l *zerolog.Logger) (*service.IndexService, error) {
 	return &service.IndexService{
-		Repository:     r,
-		TermRepository: t,
-		Logger:         l,
+		DocumentRepository: d,
+		TermRepository:     t,
+		Logger:             l,
 	}, nil
 }
 
@@ -72,14 +73,14 @@ func NewRouter(ctx context.Context, cfg *configuration.AppConfiguration, logger 
 		logger.Fatal().Err(err).Msg("Could not instantiate the Document service")
 	}
 
-	r := chi.NewRouter()
+	d := chi.NewRouter()
 
-	r.Use(render.SetContentType(render.ContentTypeJSON))
-	r.Use(chimiddleware.Heartbeat("/status"))
+	d.Use(render.SetContentType(render.ContentTypeJSON))
+	d.Use(chimiddleware.Heartbeat("/status"))
 
-	r.Mount("/api", webdocument.Handler{}.Routes(logger, indexService))
+	d.Mount("/api", webdocument.Handler{}.Routes(logger, indexService))
 
-	return r
+	return d
 }
 
 // LaunchServer starts a web server and propagates shutdown context.

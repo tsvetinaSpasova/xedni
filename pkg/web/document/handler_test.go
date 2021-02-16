@@ -25,12 +25,12 @@ import (
 
 var configPath = flag.String("config-path", "", "Directory for the specific environment yaml configuration file.")
 
-type DocumentSuite struct {
+type IndexSuite struct {
 	suite.Suite
 	r chi.Router
 }
 
-func (s *DocumentSuite) SetupTest() {
+func (s *IndexSuite) SetupTest() {
 	appConfiguration := &configuration.AppConfiguration{}
 	absoluteConfigPath, err := filepath.Abs(*configPath)
 	if err != nil {
@@ -52,7 +52,7 @@ func (s *DocumentSuite) SetupTest() {
 	s.r = web.NewRouter(context.Background(), appConfiguration, logger)
 }
 
-func (s *DocumentSuite) TestDocumentHandlerCreate() {
+func (s *IndexSuite) TestDocumentHandlerCreate() {
 	assert := assert.New(s.T())
 
 	// Any label gets the Document ID
@@ -90,5 +90,5 @@ func (s *DocumentSuite) TestDocumentHandlerCreate() {
 }
 
 func TestAll(t *testing.T) {
-	suite.Run(t, &DocumentSuite{})
+	suite.Run(t, &IndexSuite{})
 }

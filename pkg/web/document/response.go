@@ -32,6 +32,7 @@ func (cr *CreateResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// SearchResponse contains the Docs post done search
 type SearchResponse struct {
 	Docs []document.Document `json:"docs"`
 }
@@ -55,6 +56,7 @@ func NewCreateResponse(ID string, _ *service.IndexService) *CreateResponse {
 	return &CreateResponse{ID: ID}
 }
 
+// NewSearchResponse instantiates a new response when search is done
 func NewSearchResponse(docs []document.Document, _ *service.IndexService) *SearchResponse {
 	return &SearchResponse{
 		Docs: docs,

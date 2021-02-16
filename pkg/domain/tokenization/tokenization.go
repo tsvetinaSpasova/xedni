@@ -6,16 +6,22 @@ import (
 	"github.com/jdkato/prose/v2"
 )
 
+// TermRepository is an interface for the repositories that
+// operate with terms on data level, a.k.a storing and loding
 type TermRepository interface {
 	Store(Term) error
 	LoadByToken(string) (*Term, error)
 }
 
+// Term has Token and DocIDs
+// Token is a word and DocIDs is an array of the document's ids in which occurrs the word
 type Term struct {
 	Token  string
 	DocIDs []string
 }
 
+// binarySearch find the position where to place ID in IDs so that IDs stay
+// sorted or returns true in secound parameter if element is already in slice
 func binarySearch(ID string, IDs []string) (int, bool) {
 
 	low := -1
@@ -37,6 +43,9 @@ func binarySearch(ID string, IDs []string) (int, bool) {
 	return low, false
 }
 
+// Insert insert docunment id to a term's DocIDs
+// And after insetion DocIDs stay sorted
+// It returns any write error encountered.
 func (t *Term) Insert(id string) error {
 
 	pos, ok := binarySearch(id, t.DocIDs)
@@ -58,6 +67,7 @@ func (t *Term) Insert(id string) error {
 
 }
 
+// New creates a new term
 func New(token string, di []string) (*Term, error) {
 	return &Term{
 		Token:  token,
@@ -65,6 +75,7 @@ func New(token string, di []string) (*Term, error) {
 	}, nil
 }
 
+// Tokenize extracts the normalized words out of the text
 func Tokenize(text string) ([]string, error) {
 	// Create a new document with the default configuration:
 	doc, err := prose.NewDocument(text)

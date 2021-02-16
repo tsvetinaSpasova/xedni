@@ -9,30 +9,28 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// DocumentService contains the business logic for documents
+// IndexService contains the business logic for documents and terms
 type IndexService struct {
-	TermRepository tokenization.TermRepository
-	Repository     document.DocumentRepository
-	Logger         *zerolog.Logger
-	m              sync.Mutex
+	TermRepository     tokenization.TermRepository
+	DocumentRepository document.DocumentRepository
+	Logger             *zerolog.Logger
+	m                  sync.Mutex
 }
 
 // GetByID - Proxy to repository
 func (ins *IndexService) GetByID(ID string) (*document.Document, error) {
-	// Stuff happens
-	return ins.Repository.LoadByID(ID)
+	return ins.DocumentRepository.LoadByID(ID)
 }
 
-// Store converts raw text to a Documents record and saves to the respective repository.
+// Index converts raw text to a Documents record and saves to the respective repository.
 func (ins *IndexService) Index(text string) (*string, error) {
-	// Stuff happens
 
 	doc, err := document.New(text)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = ins.Repository.Store(*doc); err != nil {
+	if err = ins.DocumentRepository.Store(*doc); err != nil {
 		return nil, err
 	}
 
@@ -62,6 +60,7 @@ func (ins *IndexService) Index(text string) (*string, error) {
 	return &doc.ID, nil
 }
 
+//Merge merges to arrays only if the elements  on the both arrays are the same
 func Merge(ids1 []string, ids2 []string) []string {
 	answer := []string{}
 
@@ -84,6 +83,7 @@ func Merge(ids1 []string, ids2 []string) []string {
 	return answer
 }
 
+//Search searches by words the documents that contain the words
 func (ins *IndexService) Search(words []string) ([]document.Document, error) {
 	terms := []tokenization.Term{}
 
@@ -104,7 +104,7 @@ func (ins *IndexService) Search(words []string) ([]document.Document, error) {
 	docs := []document.Document{}
 
 	for _, id := range ids {
-		d, err := ins.Repository.LoadByID(id)
+		d, err := ins.DocumentRepository.LoadByID(id)
 		if err != nil {
 			return nil, err
 		}
