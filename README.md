@@ -4,7 +4,7 @@
 
 ## Introduction
 
-An application that implements an efficient search functionality using inverted index. Rather than map a document object to an array of the terms it contains, inverted index maps a term to an array of the documents that contains it. In other words the inverted index contains the frequencies of each words in each document.
+An api that implements an efficient search functionality using inverted index. Rather than map a document object to an array of the terms it contains, inverted index maps a term to an array of the documents that contains it. In other words the inverted index contains the frequencies of each words in each document.
 
 
 ## Getting started
